@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Proposta de Empréstimo</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -16,69 +16,153 @@
             --text-muted: #64748b;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #f8fafc; color: var(--dark); padding: 20px; line-height: 1.5; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background-color: #f8fafc; 
+            color: var(--dark); 
+            padding: 10px; /* Reduzido para mobile */
+            line-height: 1.5; 
+        }
 
         .card {
             width: 100%;
             max-width: 500px;
             background: #ffffff;
-            padding: 35px;
+            padding: 25px; /* Ajustado para mobile */
             border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin: 10px auto;
             border-top: 6px solid var(--accent);
             position: relative;
         }
 
-        .logo-container { text-align: center; margin-bottom: 30px; }
-        .logo-img { max-width: 220px; width: 100%; height: auto; }
+        @media (min-width: 768px) {
+            body { padding: 40px 20px; }
+            .card { padding: 40px; margin: 20px auto; }
+        }
 
-        h2 { font-size: 0.85rem; margin: 25px 0 15px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; text-align: center; border-bottom: 2px solid var(--gray-light); padding-bottom: 8px; }
+        .logo-container { text-align: center; margin-bottom: 25px; }
+        .logo-img { max-width: 180px; width: 100%; height: auto; }
+        @media (min-width: 768px) { .logo-img { max-width: 220px; } }
 
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        h2 { 
+            font-size: 0.75rem; 
+            margin: 20px 0 12px; 
+            font-weight: 700; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            letter-spacing: 1.2px; 
+            text-align: center; 
+            border-bottom: 2px solid var(--gray-light); 
+            padding-bottom: 6px; 
+        }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        /* Em celulares pequenos, tudo vira uma coluna */
+        @media (max-width: 480px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .group.full-width, .group { grid-column: span 1; }
+        }
+        
         .full-width { grid-column: span 2; }
 
-        label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--primary); margin-bottom: 5px; text-transform: uppercase; }
+        label { display: block; font-size: 0.65rem; font-weight: 800; color: var(--primary); margin-bottom: 4px; text-transform: uppercase; }
 
-        input[type="text"], input[type="tel"] {
-            width: 100%; padding: 12px 15px; border-radius: 10px; border: 2px solid var(--gray-light); outline: none; font-size: 0.95rem; transition: 0.3s;
+        input[type="text"], input[type="tel"], input[type="number"] {
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 12px; 
+            border: 2px solid var(--gray-light); 
+            outline: none; 
+            font-size: 16px; /* Evita zoom automático no iOS */
+            transition: 0.3s;
+            background: #fff;
         }
 
-        input:focus { border-color: var(--accent); background: #fff; }
+        input:focus { border-color: var(--accent); }
 
-        .simulator-section { background: var(--gray-light); padding: 20px; border-radius: 18px; margin-top: 10px; }
-        .info-row { display: flex; justify-content: space-between; align-items: center; }
-        .val { color: var(--primary); font-size: 1.3rem; font-weight: 800; }
-
-        input[type=range] { width: 100%; height: 7px; background: #cbd5e1; border-radius: 10px; appearance: none; outline: none; margin: 15px 0; }
-        input[type=range]::-webkit-slider-thumb { appearance: none; width: 22px; height: 22px; background: var(--primary); border: 4px solid var(--accent); border-radius: 50%; cursor: pointer; transition: 0.2s; }
-        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
-
-        .result-area { background: var(--primary); color: #fff; padding: 25px; border-radius: 20px; text-align: center; margin-top: 20px; transition: 0.3s; }
-        .res-label { font-size: 0.7rem; font-weight: 600; color: #94a3b8; letter-spacing: 1px; }
-        .res-val { font-size: 2.2rem; font-weight: 800; color: var(--accent); display: block; margin-top: 5px; }
-
-        .btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 18px; border-radius: 15px; font-size: 1rem; font-weight: 800; margin-top: 25px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .btn:hover:not(:disabled) { background: var(--dark); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .btn:disabled { background: #94a3b8; cursor: not-allowed; opacity: 0.8; }
-
-        /* Estilo do Modal de Sucesso */
-        .modal-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(10, 17, 40, 0.95); 
-            z-index: 9999; align-items: center; justify-content: center; padding: 20px;
-            backdrop-filter: blur(5px);
+        .simulator-section { background: var(--gray-light); padding: 15px; border-radius: 20px; margin-top: 10px; }
+        
+        .info-row { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 8px;
+            text-align: center;
         }
-        .modal-content {
-            background: white; padding: 40px; border-radius: 30px; text-align: center;
-            max-width: 400px; width: 100%; animation: slideUp 0.4s ease-out;
+        
+        @media (min-width: 400px) {
+            .info-row { flex-direction: row; justify-content: space-between; text-align: left; }
         }
-        .icon-circle {
-            width: 80px; height: 80px; background: #dcfce7; color: var(--success);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 40px; margin: 0 auto 20px;
+
+        .input-valor-direto {
+            background: #fff;
+            border: 2px solid #e2e8f0 !important;
+            color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: 800;
+            text-align: center;
+            width: 100%;
+            max-width: 180px;
+            border-radius: 12px;
+            padding: 10px !important;
         }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        input[type=range] { 
+            width: 100%; 
+            height: 8px; 
+            background: #cbd5e1; 
+            border-radius: 10px; 
+            appearance: none; 
+            outline: none; 
+            margin: 20px 0; 
+        }
+        
+        input[type=range]::-webkit-slider-thumb { 
+            appearance: none; 
+            width: 28px; 
+            height: 28px; 
+            background: var(--primary); 
+            border: 4px solid var(--accent); 
+            border-radius: 50%; 
+            cursor: pointer; 
+        }
+
+        .result-area { 
+            background: var(--primary); 
+            color: #fff; 
+            padding: 20px; 
+            border-radius: 20px; 
+            text-align: center; 
+            margin-top: 15px; 
+        }
+        
+        .res-label { font-size: 0.65rem; font-weight: 600; color: #94a3b8; }
+        .res-val { font-size: 1.8rem; font-weight: 800; color: var(--accent); display: block; margin-top: 5px; }
+
+        .btn { 
+            width: 100%; 
+            background: var(--primary); 
+            color: #fff; 
+            border: none; 
+            padding: 20px; 
+            border-radius: 15px; 
+            font-size: 1rem; 
+            font-weight: 800; 
+            margin-top: 20px; 
+            cursor: pointer; 
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        
+        .btn:active { transform: scale(0.98); }
+
+        /* Modal Responsivo */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10, 17, 40, 0.95); z-index: 9999; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(5px); }
+        .modal-content { background: white; padding: 30px; border-radius: 30px; text-align: center; max-width: 400px; width: 100%; }
+        .icon-circle { width: 60px; height: 60px; background: #dcfce7; color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 15px; }
     </style>
 </head>
 <body>
@@ -120,12 +204,12 @@
             <h2>Simulação de Crédito</h2>
             <div class="simulator-section">
                 <div class="info-row">
-                    <label>Valor Solicitado</label>
-                    <span class="val" id="displayAmt">R$ 100</span>
+                    <label>Valor Solicitado (R$)</label>
+                    <input type="number" id="manualAmt" class="input-valor-direto" value="100" min="100" max="80000">
                 </div>
                 <input type="range" id="inputAmt" min="100" max="80000" step="100" value="100">
-                <div class="info-row" style="margin-top: 5px;">
-                    <label>Prazo para Pagamento</label>
+                <div class="info-row">
+                    <label>Prazo</label>
                     <span style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">30 Dias (Mensal)</span>
                 </div>
             </div>
@@ -142,24 +226,40 @@
     <div class="modal-overlay" id="successModal">
         <div class="modal-content">
             <div class="icon-circle">✓</div>
-            <h3 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px;">Proposta Enviada!</h3>
-            <p style="color: var(--text-muted); margin-bottom: 25px;">Recebemos sua solicitação. Analisaremos os dados e entraremos em contato via WhatsApp em alguns minutos.</p>
+            <h3 style="color: var(--primary); margin-bottom: 10px;">Proposta Enviada!</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Analisaremos seus dados e chamaremos no WhatsApp em instantes.</p>
             <button class="btn" onclick="window.location.reload()">Entendido</button>
         </div>
     </div>
 
     <script>
-        // Configuração do Supabase
         const _supabase = supabase.createClient('https://ytagaksqljgsvpvgtkdt.supabase.co', 'sb_publishable_oEtRfAwqOXUKlDRdQoElfA_aEUJXhkm');
 
         const inputAmt = document.getElementById('inputAmt');
-        const displayAmt = document.getElementById('displayAmt');
+        const manualAmt = document.getElementById('manualAmt');
         const totalRes = document.getElementById('totalRes');
-        const cpfInput = document.getElementById('cpf');
-        const whatsappInput = document.getElementById('whatsapp');
 
-        // Máscaras de Entrada
-        cpfInput.addEventListener('input', e => {
+        inputAmt.addEventListener('input', () => {
+            manualAmt.value = inputAmt.value;
+            calcular();
+        });
+
+        manualAmt.addEventListener('input', () => {
+            let val = parseInt(manualAmt.value);
+            if (val > 80000) { val = 80000; manualAmt.value = 80000; }
+            if (val >= 100) { inputAmt.value = val; }
+            calcular();
+        });
+
+        manualAmt.addEventListener('blur', () => {
+            if (manualAmt.value < 100 || manualAmt.value === "") {
+                manualAmt.value = 100;
+                inputAmt.value = 100;
+                calcular();
+            }
+        });
+
+        document.getElementById('cpf').addEventListener('input', e => {
             let v = e.target.value.replace(/\D/g,"");
             v = v.replace(/(\d{3})(\d)/,"$1.$2");
             v = v.replace(/(\d{3})(\d)/,"$1.$2");
@@ -167,7 +267,7 @@
             e.target.value = v;
         });
 
-        whatsappInput.addEventListener('input', e => {
+        document.getElementById('whatsapp').addEventListener('input', e => {
             let v = e.target.value.replace(/\D/g,"");
             v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
             v = v.replace(/(\d{5})(\d)/,"$1-$2");
@@ -175,9 +275,8 @@
         });
 
         function calcular() {
-            const valor = parseFloat(inputAmt.value);
+            const valor = parseFloat(manualAmt.value) || 0;
             const total = valor * 1.20;
-            displayAmt.innerText = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
             totalRes.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
@@ -190,32 +289,28 @@
                 endereco: document.getElementById('endereco').value,
                 bairro: document.getElementById('bairro').value,
                 numero: document.getElementById('numero').value,
-                valor: parseFloat(inputAmt.value)
+                valor: parseFloat(manualAmt.value)
             };
 
-            // Validação simples
-            if (!dados.nome || dados.cpf.length < 14 || dados.whatsapp.length < 14) {
-                alert("Por favor, preencha nome, CPF e WhatsApp corretamente.");
+            if (!dados.nome || dados.cpf.length < 14 || dados.whatsapp.length < 14 || dados.valor < 100) {
+                alert("Preencha os dados corretamente. Mínimo R$ 100.");
                 return;
             }
 
             btn.disabled = true;
-            btn.innerText = "Processando...";
+            btn.innerText = "Enviando...";
 
             const { error } = await _supabase.from('propostas').insert([dados]);
 
             if (error) {
-                alert("Erro ao enviar: " + error.message);
+                alert("Erro: " + error.message);
                 btn.disabled = false;
                 btn.innerText = "Enviar Proposta Agora";
             } else {
-                // Exibe o modal profissional
                 document.getElementById('successModal').style.display = 'flex';
             }
         }
-
-        inputAmt.addEventListener('input', calcular);
-        calcular(); // Inicia cálculo padrão
+        calcular();
     </script>
 </body>
 </html>
