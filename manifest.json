@@ -1,8 +1,8 @@
 {
-  "name": "NexCapital Gestão",
-  "short_name": "NexCapital",
-  "description": "Painel de Gestão NexCapital",
-  "start_url": "index.html",
+  "name": "Gestão",
+  "short_name": "Gestão de emprestimos",
+  "description": "Painel de Gestão",
+  "start_url": "painel.html",
   "display": "standalone",
   "background_color": "#122143",
   "theme_color": "#122143",
@@ -18,4 +18,5 @@
       "type": "image/png"
     }
   ]
+
 }
