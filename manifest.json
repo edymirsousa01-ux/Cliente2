@@ -1,0 +1,21 @@
+{
+  "name": "NexCapital Gestão",
+  "short_name": "NexCapital",
+  "description": "Painel de Gestão NexCapital",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#122143",
+  "theme_color": "#122143",
+  "icons": [
+    {
+      "src": "https://files.catbox.moe/76p0mh.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://files.catbox.moe/76p0mh.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
