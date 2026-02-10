@@ -240,7 +240,7 @@
 
                 const msgRelatorio = encodeURIComponent(`📊 *RELATÓRIO DO EMPRÉSTIMO*\n\nOlá *${item.nome}*, segue resumo de sua proposta:\n🗓 *Início:* ${dataCriacao.toLocaleDateString('pt-BR')}\n💰 *Valor Original:* R$ ${item.valor.toLocaleString('pt-BR')}\n⏳ *Tempo:* ${diffDias} dias\n---------------------------------------\n${detalheJuroTxt}\n💵 *TOTAL PARA QUITAÇÃO:* ${totalFmt}\n---------------------------------------\n_Para prosseguirmos com a liberação do valor do empréstimo, poderia nos informar se prefere receber em dinheiro ou via PIX?._`);
                 
-                const msgCobranca = encodeURIComponent(`⚠️ *AVISO DE PAGAMENTO*\n\nOlá *${item.nome}*, o saldo de seu empréstimo está atualizado hoje em *${totalFmt}*. \n*Tempo:* ${diffDias} dias.\n\n📌 Informações para Pagamento\n\nO pagamento poderá ser realizado por meio de PIX ou em dinheiro.\nApós a realização do pagamento, solicitamos o envio do comprovante para confirmação.\n\n⚠️ Atenção: atrasos estão sujeitos à incidência de juros diários.\n\nDados para pagamento (PIX):\n• Nome do recebedor:Nivaldo Suelho De Jesus Silva \n• Banco:Caixa Economica \n• Chave PIX:96991858538 \n\nFicamos no aguardo. Obrigado(a).`);
+                const msgCobranca = encodeURIComponent(`⚠️ *AVISO DE PAGAMENTO*\n\nOlá *${item.nome}*, o saldo de seu empréstimo está atualizado hoje em *${totalFmt}*. \n*Tempo:* ${diffDias} dias.\n\n📌 Informações para Pagamento\n\nO pagamento poderá ser realizado por meio de PIX ou em dinheiro.\nApós a realização do pagamento, solicitamos o envio do comprovante para confirmação.\n\n⚠️ Atenção: atrasos estão sujeitos à incidência de juros diários.\n\nDados para pagamento (PIX):\n• Nome do recebedor:Nivaldo Suelho De Jesus Silva \n• Banco:PicPay \n• Chave PIX:Suelho1911@gmail.com \n\nFicamos no aguardo. Obrigado(a).`);
 
                 tableBody.innerHTML += `
                     <tr>
@@ -299,3 +299,4 @@
     </script>
 </body>
 </html>
+
