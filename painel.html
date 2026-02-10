@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCapital | Painel de Gestão</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #122143;
+            --accent: #d4af37;
+            --bg: #f4f7fa;
+            --white: #ffffff;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg); color: var(--primary); padding-bottom: 50px; }
+
+        /* LOGIN */
+        #login-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--primary); }
+        .login-card { background: white; padding: 40px; border-radius: 24px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .login-card img { max-width: 200px; margin-bottom: 25px; }
+        .login-card input { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #f1f5f9; border-radius: 12px; outline: none; }
+        .login-card button { width: 100%; padding: 14px; background: var(--accent); border: none; border-radius: 12px; font-weight: 800; color: var(--primary); cursor: pointer; text-transform: uppercase; }
+
+        /* DASHBOARD */
+        #admin-content { display: none; padding: 40px 20px; }
+        .container { max-width: 1300px; margin: 0 auto; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: var(--primary); padding: 25px; border-radius: 20px; color: white; }
+        .logo-admin { height: 50px; }
+
+        /* CARDS DE RESUMO */
+        .summary-card { background: var(--white); padding: 25px; border-radius: 15px; margin-bottom: 25px; border-left: 6px solid var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .summary-label { font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+        .summary-value { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin-top: 5px; }
+
+        .controls { background: white; padding: 20px; border-radius: 15px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 10px rgba(0,0,0,0.03); gap: 15px; flex-wrap: wrap; }
+        .tax-selector { padding: 10px 15px; border-radius: 10px; border: 2px solid var(--primary); font-weight: 700; color: var(--primary); outline: none; }
+
+        /* BOTÃO ATUALIZAR */
+        .btn-refresh { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            padding: 10px 20px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        .btn-refresh:hover { background: #1a2f5f; transform: translateY(-2px); }
+        .btn-refresh:active { transform: translateY(0); }
+
+        .live-indicator { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--success); font-weight: 800; }
+        .dot { width: 10px; height: 10px; background: var(--success); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        /* TABELA */
+        .table-container { background: var(--white); border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+        th { padding: 18px 25px; background: #f8fafc; text-align: left; font-size: 0.7rem; text-transform: uppercase; color: #64748b; }
+        td { padding: 18px 25px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+
+        .badge { padding: 5px 12px; border-radius: 12px; font-weight: 800; font-size: 0.65rem; text-transform: uppercase; }
+        .badge-ok { background: #dcfce7; color: var(--success); }
+        .badge-late { background: #fee2e2; color: var(--danger); }
+
+        .actions-div { display: flex; gap: 8px; align-items: center; }
+        .btn-action { padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: 700; text-decoration: none; font-size: 0.75rem; transition: 0.2s; text-align: center;}
+        .btn-relatorio { background: var(--success); color: white; }
+        .btn-cobranca { background: var(--warning); color: white; }
+        .btn-delete { background: #f1f5f9; color: #94a3b8; }
+        .btn-delete:hover { background: var(--danger); color: white; }
+        
+        .val-total { font-weight: 800; font-size: 1rem; color: var(--primary); }
+
+        /* MODAL DE EXCLUSÃO */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 33, 67, 0.85); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-card { background: white; padding: 35px; border-radius: 24px; width: 90%; max-width: 420px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: modalShow 0.3s ease-out; }
+        @keyframes modalShow { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-card h3 { color: var(--primary); margin: 15px 0 10px; font-size: 1.4rem; }
+        .modal-card p { color: #64748b; font-size: 0.95rem; margin-bottom: 30px; line-height: 1.6; }
+        .modal-btns { display: flex; gap: 12px; }
+        .btn-modal { flex: 1; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-cancel { background: #f1f5f9; color: #64748b; }
+        .btn-confirm-del { background: var(--danger); color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-card">
+            <div style="font-size: 3.5rem;">⚠️</div>
+            <h3>Excluir Registro?</h3>
+            <p>Você está prestes a apagar este empréstimo permanentemente. Esta ação não poderá ser revertida.</p>
+            <div class="modal-btns">
+                <button class="btn-modal btn-cancel" onclick="fecharModal()">CANCELAR</button>
+                <button class="btn-modal btn-confirm-del" id="confirmDeleteBtn">EXCLUIR AGORA</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <img src="https://files.catbox.moe/76p0mh.png" alt="Logo">
+            <input type="text" id="user" placeholder="Usuário">
+            <input type="password" id="pass" placeholder="Senha">
+            <button onclick="checkLogin()">Acessar Sistema</button>
+        </div>
+    </div>
+
+    <div id="admin-content">
+        <div class="container">
+            <div class="header">
+                <img src="https://files.catbox.moe/76p0mh.png" alt="Logo" class="logo-admin">
+                <button onclick="window.location.reload()" style="background:none; border:1px solid rgba(255,255,255,0.3); color:white; padding:8px 15px; border-radius:10px; cursor:pointer; font-weight: 600;">SAIR</button>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-label">Total Geral a Receber</div>
+                <div class="summary-value" id="total-receber">R$ 0,00</div>
+            </div>
+
+            <div class="controls">
+                <div style="display: flex; gap: 15px; align-items: flex-end;">
+                    <div>
+                        <label style="display:block; font-size: 0.7rem; font-weight:800; margin-bottom:8px; color: #64748b;">TAXA PÓS-PRAZO (DIÁRIA)</label>
+                        <select id="taxRate" class="tax-selector" onchange="carregarDados()">
+                            <option value="0.20">20% MENSAL</option>
+                            <option value="0.25">25% MENSAL</option>
+                        </select>
+                    </div>
+                    
+                    <button onclick="carregarDados()" class="btn-refresh">
+                        <span style="font-size: 1.1rem;">🔄</span> ATUALIZAR DADOS
+                    </button>
+                </div>
+
+                <div class="live-indicator">
+                    <div class="dot"></div> SINCRONIZAÇÃO EM TEMPO REAL
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Início</th>
+                            <th>Status / Tempo</th>
+                            <th>Cliente</th>
+                            <th>Original</th>
+                            <th>Juros</th>
+                            <th>Total Atual</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const _supabase = supabase.createClient('https://ytagaksqljgsvpvgtkdt.supabase.co', 'sb_publishable_oEtRfAwqOXUKlDRdQoElfA_aEUJXhkm');
+        let idParaDeletar = null;
+
+        function checkLogin() {
+            if(document.getElementById('user').value === 'admin' && document.getElementById('pass').value === '123456') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+                carregarDados();
+                ativarRealtime();
+            } else { alert("Acesso negado."); }
+        }
+
+        function ativarRealtime() {
+            _supabase.channel('public:propostas').on('postgres_changes', { event: '*', schema: 'public', table: 'propostas' }, () => {
+                carregarDados();
+            }).subscribe();
+        }
+
+        async function carregarDados() {
+            const tableBody = document.getElementById('table-body');
+            const totalDisplay = document.getElementById('total-receber');
+            const taxPosPrazo = parseFloat(document.getElementById('taxRate').value);
+            
+            // Pequeno feedback visual no botão ao clicar
+            const btnRefresh = document.querySelector('.btn-refresh');
+            if(btnRefresh) btnRefresh.style.opacity = '0.5';
+
+            const { data, error } = await _supabase.from('propostas').select('*').order('created_at', { ascending: false });
+            
+            if (btnRefresh) btnRefresh.style.opacity = '1';
+
+            if (error) return;
+            tableBody.innerHTML = '';
+            let somaTotalGeral = 0;
+            const hoje = new Date();
+
+            data.forEach(item => {
+                const dataCriacao = new Date(item.created_at);
+                const diffDias = Math.floor(Math.abs(hoje - dataCriacao) / (1000 * 60 * 60 * 24));
+                
+                let jurosTotal = 0;
+                let detalheJuroTxt = "";
+                let badge = "";
+
+                if (diffDias <= 30) {
+                    jurosTotal = item.valor * 0.20;
+                    detalheJuroTxt = "*Juros:* 20% Fixo (30 dias)";
+                    badge = `<span class="badge badge-ok">Tempo: ${diffDias} dias</span>`;
+                } else {
+                    const excedente = diffDias - 30;
+                    const fixo30 = item.valor * 0.20;
+                    const diario = item.valor * ((taxPosPrazo / 30) * excedente);
+                    jurosTotal = fixo30 + diario;
+                    detalheJuroTxt = `*Juros:* 20% fixo + ${excedente} dias excedentes`;
+                    badge = `<span class="badge badge-late">Tempo: ${diffDias} dias</span>`;
+                }
+
+                const totalFinal = item.valor + jurosTotal;
+                somaTotalGeral += totalFinal;
+
+                const totalFmt = totalFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                const msgRelatorio = encodeURIComponent(`📊 *RELATÓRIO DO EMPRÉSTIMO*\n\nOlá *${item.nome}*, segue resumo de sua proposta:\n🗓 *Início:* ${dataCriacao.toLocaleDateString('pt-BR')}\n💰 *Valor Original:* R$ ${item.valor.toLocaleString('pt-BR')}\n⏳ *Tempo:* ${diffDias} dias\n---------------------------------------\n${detalheJuroTxt}\n💵 *TOTAL PARA QUITAÇÃO:* ${totalFmt}\n---------------------------------------\n_Para prosseguirmos com a liberação do valor do empréstimo, poderia nos informar se prefere receber em dinheiro ou via PIX?._`);
+                
+                const msgCobranca = encodeURIComponent(`⚠️ *AVISO DE PAGAMENTO*\n\nOlá *${item.nome}*, o saldo de seu empréstimo está atualizado hoje em *${totalFmt}*. \n*Tempo:* ${diffDias} dias.\n\n📌 Informações para Pagamento\n\nO pagamento poderá ser realizado por meio de PIX ou em dinheiro.\nApós a realização do pagamento, solicitamos o envio do comprovante para confirmação.\n\n⚠️ Atenção: atrasos estão sujeitos à incidência de juros diários.\n\nDados para pagamento (PIX):\n• Nome do recebedor:Nivaldo Suelho De Jesus Silva \n• Banco:Caixa Economica \n• Chave PIX:96991858538 \n\nFicamos no aguardo. Obrigado(a).`);
+
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${dataCriacao.toLocaleDateString('pt-BR')}</td>
+                        <td>${badge}</td>
+                        <td><strong>${item.nome}</strong><br><small>${item.whatsapp}</small></td>
+                        <td>R$ ${item.valor.toLocaleString('pt-BR')}</td>
+                        <td>R$ ${jurosTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                        <td><span class="val-total">R$ ${totalFinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span></td>
+                        <td>
+                            <div class="actions-div">
+                                <a href="https://wa.me/55${item.whatsapp.replace(/\D/g,'')}?text=${msgRelatorio}" target="_blank" class="btn-action btn-relatorio">Relatório</a>
+                                <a href="https://wa.me/55${item.whatsapp.replace(/\D/g,'')}?text=${msgCobranca}" target="_blank" class="btn-action btn-cobranca">Cobrar</a>
+                                <button onclick="deletar('${item.id}')" class="btn-action btn-delete">X</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            totalDisplay.innerText = somaTotalGeral.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // FUNÇÕES DO MODAL
+        function deletar(id) {
+            idParaDeletar = id;
+            document.getElementById('deleteModal').style.display = 'flex';
+            
+            document.getElementById('confirmDeleteBtn').onclick = async () => {
+                const btn = document.getElementById('confirmDeleteBtn');
+                btn.innerText = "EXCLUINDO...";
+                btn.disabled = true;
+
+                await _supabase.from('propostas').delete().eq('id', idParaDeletar);
+                
+                fecharModal();
+                btn.innerText = "EXCLUIR AGORA";
+                btn.disabled = false;
+            };
+        }
+
+        function fecharModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            idParaDeletar = null;
+        }
+
+        window.onclick = function(e) {
+            if (e.target == document.getElementById('deleteModal')) fecharModal();
+        }
+    </script>
+</body>
+</html>
