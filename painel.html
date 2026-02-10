@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexCapital | Painel de Gestão</title>
+    <title>Painel de Gestão</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#122143">
+    <link rel="apple-touch-icon" href="https://files.catbox.moe/76p0mh.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -193,7 +200,6 @@
             const totalDisplay = document.getElementById('total-receber');
             const taxPosPrazo = parseFloat(document.getElementById('taxRate').value);
             
-            // Pequeno feedback visual no botão ao clicar
             const btnRefresh = document.querySelector('.btn-refresh');
             if(btnRefresh) btnRefresh.style.opacity = '0.5';
 
@@ -258,7 +264,6 @@
             totalDisplay.innerText = somaTotalGeral.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        // FUNÇÕES DO MODAL
         function deletar(id) {
             idParaDeletar = id;
             document.getElementById('deleteModal').style.display = 'flex';
@@ -283,6 +288,13 @@
 
         window.onclick = function(e) {
             if (e.target == document.getElementById('deleteModal')) fecharModal();
+        }
+
+        // --- REGISTRO DO SERVICE WORKER (PWA) ---
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(() => console.log("PWA Registrado!"))
+            .catch(err => console.log("Erro PWA:", err));
         }
     </script>
 </body>
