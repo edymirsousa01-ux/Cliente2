@@ -3,274 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexCapital | Soluções Financeiras Inteligentes</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <title>Proposta de Empréstimo | NexCapital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --brand-primary: #00d1b2; /* Verde Fintech */
-            --brand-dark: #0a0b10;
-            --brand-accent: #6c5ce7;
-            --text-main: #2d3436;
-            --text-light: #636e72;
-            --white: #ffffff;
-            --glass: rgba(255, 255, 255, 0.95);
+            --primary: #122143;
+            --accent: #d4af37;
+            --success: #22c55e;
+            --dark: #0a1128;
+            --gray-light: #f1f5f9;
+            --text-muted: #64748b;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #f8fafc; color: var(--dark); padding: 20px; line-height: 1.5; }
 
-        body {
-            background-color: #fcfcfd;
-            color: var(--text-main);
-            overflow-x: hidden;
-        }
-
-        /* --- Header Premium --- */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 8%;
-            background: var(--white);
-            border-bottom: 1px solid #eee;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo {
-            font-weight: 700;
-            font-size: 1.6rem;
-            color: var(--brand-dark);
-            letter-spacing: -1px;
-        }
-
-        .logo span { color: var(--brand-primary); }
-
-        nav a {
-            text-decoration: none;
-            color: var(--text-main);
-            margin-left: 2rem;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: 0.3s;
-        }
-
-        .btn-nav {
-            background: var(--brand-dark);
-            color: var(--white) !important;
-            padding: 10px 24px;
-            border-radius: 50px;
-        }
-
-        /* --- Hero Section --- */
-        .hero {
-            position: relative;
-            padding: 100px 8% 180px;
-            background: radial-gradient(circle at top right, #eef2f3, #ffffff);
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: var(--brand-dark);
-            line-height: 1.1;
-            margin-bottom: 20px;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: var(--text-light);
-            max-width: 600px;
-            margin: 0 auto 40px;
-        }
-
-        /* --- Glass Simulador --- */
-        .simulator-container {
-            max-width: 900px;
-            margin: -100px auto 50px;
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
+        .card {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            padding: 35px;
             border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            margin: 20px auto;
+            border-top: 6px solid var(--accent);
             position: relative;
-            z-index: 10;
         }
 
-        .sim-inputs {
-            padding: 40px;
-            border-right: 1px solid #f0f0f0;
+        .logo-container { text-align: center; margin-bottom: 30px; }
+        .logo-img { max-width: 220px; width: 100%; height: auto; }
+
+        h2 { font-size: 0.85rem; margin: 25px 0 15px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; text-align: center; border-bottom: 2px solid var(--gray-light); padding-bottom: 8px; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-width { grid-column: span 2; }
+
+        label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--primary); margin-bottom: 5px; text-transform: uppercase; }
+
+        input[type="text"], input[type="tel"] {
+            width: 100%; padding: 12px 15px; border-radius: 10px; border: 2px solid var(--gray-light); outline: none; font-size: 0.95rem; transition: 0.3s;
         }
 
-        .sim-result {
-            padding: 40px;
-            background: #f8fafc;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
+        input:focus { border-color: var(--accent); background: #fff; }
 
-        /* Custom Range Slider */
-        input[type=range] {
-            width: 100%;
-            height: 6px;
-            background: #dfe6e9;
-            border-radius: 5px;
-            appearance: none;
-            margin: 20px 0;
-        }
+        .simulator-section { background: var(--gray-light); padding: 20px; border-radius: 18px; margin-top: 10px; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; }
+        .val { color: var(--primary); font-size: 1.3rem; font-weight: 800; }
 
-        input[type=range]::-webkit-slider-thumb {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--brand-primary);
-            border-radius: 50%;
-            cursor: pointer;
-            border: 3px solid white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
+        input[type=range] { width: 100%; height: 7px; background: #cbd5e1; border-radius: 10px; appearance: none; outline: none; margin: 15px 0; }
+        input[type=range]::-webkit-slider-thumb { appearance: none; width: 22px; height: 22px; background: var(--primary); border: 4px solid var(--accent); border-radius: 50%; cursor: pointer; transition: 0.2s; }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
-        label { font-weight: 600; font-size: 0.9rem; color: var(--brand-dark); }
+        .result-area { background: var(--primary); color: #fff; padding: 25px; border-radius: 20px; text-align: center; margin-top: 20px; transition: 0.3s; }
+        .res-label { font-size: 0.7rem; font-weight: 600; color: #94a3b8; letter-spacing: 1px; }
+        .res-val { font-size: 2.2rem; font-weight: 800; color: var(--accent); display: block; margin-top: 5px; }
 
-        .value-display {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--brand-primary);
-            float: right;
-        }
+        .btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 18px; border-radius: 15px; font-size: 1rem; font-weight: 800; margin-top: 25px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .btn:hover:not(:disabled) { background: var(--dark); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .btn:disabled { background: #94a3b8; cursor: not-allowed; opacity: 0.8; }
 
-        .btn-cta {
-            background: var(--brand-primary);
-            color: var(--white);
-            border: none;
-            padding: 18px 40px;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            width: 100%;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 10px 15px -3px rgba(0, 209, 178, 0.3);
+        /* Estilo do Modal de Sucesso */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(10, 17, 40, 0.95); 
+            z-index: 9999; align-items: center; justify-content: center; padding: 20px;
+            backdrop-filter: blur(5px);
         }
-
-        .btn-cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgba(0, 209, 178, 0.4);
+        .modal-content {
+            background: white; padding: 40px; border-radius: 30px; text-align: center;
+            max-width: 400px; width: 100%; animation: slideUp 0.4s ease-out;
         }
-
-        /* --- Trust Bar --- */
-        .trust-bar {
-            padding: 40px 8%;
-            text-align: center;
-            opacity: 0.6;
-            filter: grayscale(1);
-            display: flex;
-            justify-content: center;
-            gap: 50px;
-            flex-wrap: wrap;
+        .icon-circle {
+            width: 80px; height: 80px; background: #dcfce7; color: var(--success);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 40px; margin: 0 auto 20px;
         }
-
-        /* --- Responsive --- */
-        @media (max-width: 768px) {
-            .simulator-container { grid-template-columns: 1fr; margin-top: -50px; }
-            .hero h1 { font-size: 2.2rem; }
-            nav { display: none; }
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">Nex<span>Capital</span></div>
-        <nav>
-            <a href="#">Produtos</a>
-            <a href="#">Para Você</a>
-            <a href="#">Segurança</a>
-            <a href="#" class="btn-nav">Acessar Conta</a>
-        </nav>
-    </header>
-
-    <section class="hero">
-        <h1>O crédito que impulsiona <br>seus grandes planos.</h1>
-        <p>Sem burocracia bancária, com transparência total e as menores taxas do mercado digital.</p>
-    </section>
-
-    <div class="simulator-container">
-        <div class="sim-inputs">
-            <div style="margin-bottom: 30px;">
-                <label>QUANTO VOCÊ PRECISA?</label>
-                <span class="value-display" id="amtLabel">R$ 10.000</span>
-                <input type="range" id="amtRange" min="1000" max="100000" step="1000" value="10000">
-            </div>
-
-            <div style="margin-bottom: 30px;">
-                <label>TEMPO PARA PAGAR</label>
-                <span class="value-display" id="timeLabel">24 meses</span>
-                <input type="range" id="timeRange" min="6" max="60" step="6" value="24">
-            </div>
-            
-            <p style="font-size: 0.8rem; color: var(--text-light);">*Taxa de juros personalizada baseada no seu score.</p>
+    <div class="card">
+        <div class="logo-container">
+            <img src="https://files.catbox.moe/76p0mh.png" alt="NexCapital" class="logo-img">
         </div>
-
-        <div class="sim-result">
-            <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-light);">PARCELA MENSAL ESTIMADA</span>
-            <div style="font-size: 3rem; font-weight: 800; color: var(--brand-dark); margin: 10px 0;">
-                <small style="font-size: 1.2rem; vertical-align: middle;">R$</small> <span id="monthlyValue">564,20</span>
+        
+        <h2>Dados do Solicitante</h2>
+        <form id="loanForm">
+            <div class="form-grid">
+                <div class="group full-width">
+                    <label>Nome Completo</label>
+                    <input type="text" id="nome" placeholder="Digite seu nome" required>
+                </div>
+                <div class="group">
+                    <label>CPF</label>
+                    <input type="tel" id="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                </div>
+                <div class="group">
+                    <label>WhatsApp</label>
+                    <input type="tel" id="whatsapp" placeholder="(00) 00000-0000" maxlength="15" required>
+                </div>
+                <div class="group full-width">
+                    <label>Endereço</label>
+                    <input type="text" id="endereco" placeholder="Rua / Avenida, nº">
+                </div>
+                <div class="group">
+                    <label>Bairro</label>
+                    <input type="text" id="bairro" placeholder="Seu bairro">
+                </div>
+                <div class="group">
+                    <label>Número</label>
+                    <input type="text" id="numero" placeholder="Nº">
+                </div>
             </div>
-            <button class="btn-cta">Contratar Empréstimo</button>
-            <p style="margin-top: 15px; font-size: 0.85rem; color: var(--brand-primary); font-weight: 600;">
-                <i class="fas fa-check-circle"></i> Aprovação em 5 minutos
-            </p>
-        </div>
+
+            <h2>Simulação de Crédito</h2>
+            <div class="simulator-section">
+                <div class="info-row">
+                    <label>Valor Solicitado</label>
+                    <span class="val" id="displayAmt">R$ 100</span>
+                </div>
+                <input type="range" id="inputAmt" min="100" max="80000" step="100" value="100">
+                <div class="info-row" style="margin-top: 5px;">
+                    <label>Prazo para Pagamento</label>
+                    <span style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">30 Dias (Mensal)</span>
+                </div>
+            </div>
+
+            <div class="result-area">
+                <span class="res-label">TOTAL A PAGAR (COM 20% DE JUROS)</span>
+                <span class="res-val" id="totalRes">R$ 120,00</span>
+            </div>
+
+            <button type="button" class="btn" id="btnEnviar" onclick="enviarProposta()">Enviar Proposta Agora</button>
+        </form>
     </div>
 
-    <div class="trust-bar">
-        <h3>PARCEIROS:</h3>
-        <strong>BANCO CENTRAL</strong>
-        <strong>VALOR INVESTE</strong>
-        <strong>FEBRABAN</strong>
-        <strong>CVM</strong>
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-content">
+            <div class="icon-circle">✓</div>
+            <h3 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px;">Proposta Enviada!</h3>
+            <p style="color: var(--text-muted); margin-bottom: 25px;">Recebemos sua solicitação. Analisaremos os dados e entraremos em contato via WhatsApp em alguns minutos.</p>
+            <button class="btn" onclick="window.location.reload()">Entendido</button>
+        </div>
     </div>
 
     <script>
-        const amtInput = document.getElementById('amtRange');
-        const timeInput = document.getElementById('timeRange');
-        const amtLabel = document.getElementById('amtLabel');
-        const timeLabel = document.getElementById('timeLabel');
-        const monthlyValue = document.getElementById('monthlyValue');
+        // Configuração do Supabase
+        const _supabase = supabase.createClient('https://ytagaksqljgsvpvgtkdt.supabase.co', 'sb_publishable_oEtRfAwqOXUKlDRdQoElfA_aEUJXhkm');
 
-        function calculate() {
-            const principal = parseFloat(amtInput.value);
-            const months = parseInt(timeInput.value);
-            const monthlyRate = 0.0189; // Taxa de 1.89% a.m
+        const inputAmt = document.getElementById('inputAmt');
+        const displayAmt = document.getElementById('displayAmt');
+        const totalRes = document.getElementById('totalRes');
+        const cpfInput = document.getElementById('cpf');
+        const whatsappInput = document.getElementById('whatsapp');
 
-            // Fórmula de amortização (Price)
-            const x = Math.pow(1 + monthlyRate, months);
-            const monthly = (principal * x * monthlyRate) / (x - 1);
+        // Máscaras de Entrada
+        cpfInput.addEventListener('input', e => {
+            let v = e.target.value.replace(/\D/g,"");
+            v = v.replace(/(\d{3})(\d)/,"$1.$2");
+            v = v.replace(/(\d{3})(\d)/,"$1.$2");
+            v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+            e.target.value = v;
+        });
 
-            amtLabel.innerText = `R$ ${principal.toLocaleString('pt-BR')}`;
-            timeLabel.innerText = `${months} meses`;
-            monthlyValue.innerText = monthly.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        whatsappInput.addEventListener('input', e => {
+            let v = e.target.value.replace(/\D/g,"");
+            v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
+            v = v.replace(/(\d{5})(\d)/,"$1-$2");
+            e.target.value = v;
+        });
+
+        function calcular() {
+            const valor = parseFloat(inputAmt.value);
+            const total = valor * 1.20;
+            displayAmt.innerText = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+            totalRes.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        amtInput.addEventListener('input', calculate);
-        timeInput.addEventListener('input', calculate);
-        
-        // Iniciar cálculo
-        calculate();
+        async function enviarProposta() {
+            const btn = document.getElementById('btnEnviar');
+            const dados = {
+                nome: document.getElementById('nome').value,
+                cpf: document.getElementById('cpf').value,
+                whatsapp: document.getElementById('whatsapp').value,
+                endereco: document.getElementById('endereco').value,
+                bairro: document.getElementById('bairro').value,
+                numero: document.getElementById('numero').value,
+                valor: parseFloat(inputAmt.value)
+            };
+
+            // Validação simples
+            if (!dados.nome || dados.cpf.length < 14 || dados.whatsapp.length < 14) {
+                alert("Por favor, preencha nome, CPF e WhatsApp corretamente.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Processando...";
+
+            const { error } = await _supabase.from('propostas').insert([dados]);
+
+            if (error) {
+                alert("Erro ao enviar: " + error.message);
+                btn.disabled = false;
+                btn.innerText = "Enviar Proposta Agora";
+            } else {
+                // Exibe o modal profissional
+                document.getElementById('successModal').style.display = 'flex';
+            }
+        }
+
+        inputAmt.addEventListener('input', calcular);
+        calcular(); // Inicia cálculo padrão
     </script>
 </body>
 </html>
