@@ -327,7 +327,7 @@
                 const whatsLimpo = item.whatsapp.replace(/\D/g,'');
 
                 const msgRelatorio = encodeURIComponent(`📊 *RESUMO DO EMPRÉSTIMO*\n\nOlá *${item.nome}*, segue os detalhes atualizados:\n\n🗓 *DATA DE INÍCIO:* ${dataC.toLocaleDateString('pt-BR')}\n💰 *VALOR ORIGINAL:* R$ ${item.valor.toLocaleString('pt-BR')}\n⏳ *TEMPO DECURSO:* ${diff} dias\n📈 *ENCARGOS:* ${detalheJuro}\n\n💵 *TOTAL PARA QUITAÇÃO:* ${totalFmt}\n\n---------------------------------------\n❓ *COMO VOCÊ DESEJA RECEBER O VALOR?*\n( ) Via PIX\n( ) Em Dinheiro\n---------------------------------------`);
-                const msgCobranca = encodeURIComponent(`⚠️ *AVISO DE PAGAMENTO*\n\nOlá *${item.nome}*, o saldo hoje é *${totalFmt}*.\n\n📌 *DADOS PIX (E-MAIL):*\n\nSuelho1911@gmail.com\n\n_Favor enviar comprovante._`);
+                const msgCobranca = encodeURIComponent(`⚠️ *AVISO DE COBRANÇA*\n\nOlá *${item.nome}*, o saldo hoje é *${totalFmt}*.\n\n📌 *DADOS PIX (PicPay):*\n\nSuelho1911@gmail.com\n\n_Solicitamos a gentileza de encaminhar o comprovante após a realização do pagamento.após o vencimento, o valor estará sujeito à incidência de juros diários!`);
 
                 tableBody.innerHTML += `
                     <tr>
