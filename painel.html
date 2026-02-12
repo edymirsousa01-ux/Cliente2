@@ -292,64 +292,73 @@
 
         function ativarRealtime() { _supabase.channel('custom-all-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'propostas' }, () => carregarDados()).subscribe(); }
 
-        async function carregarDados() {
-            const tableBody = document.getElementById('table-body');
-            const taxPos = parseFloat(document.getElementById('taxRate').value);
-            const { data, error } = await _supabase.from('propostas').select('*').order('created_at', { ascending: false });
-            if (error) return;
-            tableBody.innerHTML = '';
-            let somaTotalGeral = 0;
-            const hoje = new Date();
+       async function carregarDados() {
+        const tableBody = document.getElementById('table-body');
+        const taxPos = parseFloat(document.getElementById('taxRate').value);
+        const { data, error } = await _supabase.from('propostas').select('*').order('created_at', { ascending: false });
+        
+        if (error) return;
+        tableBody.innerHTML = '';
+        let somaTotalGeral = 0;
+        const hoje = new Date();
 
-            data.forEach(item => {
-                const dataC = new Date(item.created_at);
-                const d1 = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-                const d2 = new Date(dataC.getFullYear(), dataC.getMonth(), dataC.getDate());
-                const diff = Math.floor((d1 - d2) / (1000 * 60 * 60 * 24));
-                let juros = 0;
-                let detalheJuro = "MAIS TAXA";
-                let badge = "";
+        data.forEach(item => {
+            const dataC = new Date(item.created_at);
+            const d1 = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+            const d2 = new Date(dataC.getFullYear(), dataC.getMonth(), dataC.getDate());
+            const diff = Math.floor((d1 - d2) / (1000 * 60 * 60 * 24));
+            
+            let juros = 0;
+            let detalheJuro = "";
+            let badge = "";
 
-                // Lógica de cálculo da tabela (mantida conforme original)
-                if (diff <= 30) {
-                    juros = item.valor * 0.20;
-                    badge = diff === 0 ? `<span class="badge badge-today">Hoje</span>` : `<span class="badge badge-ok">${diff} dias</span>`;
-                } else {
-                    const extra = diff - 30;
-                    juros = (item.valor * 0.20) + (item.valor * ((taxPos / 30) * extra));
-                    badge = `<span class="badge badge-late">${diff} dias</span>`;
-                    detalheJuro = `20% fixo + ${extra} dias extras`;
-                }
+            if (diff <= 30) {
+                juros = item.valor * 0.20;
+                badge = diff === 0 ? `<span class="badge badge-today">Hoje</span>` : `<span class="badge badge-ok">${diff} dias</span>`;
+                detalheJuro = "(MAIS TAXA DO EMPRESTIMO)";
+            } else {
+                const extra = diff - 30;
+                juros = (item.valor * 0.20) + (item.valor * ((taxPos / 30) * extra));
+                badge = `<span class="badge badge-late">${diff} dias</span>`;
+                detalheJuro = `20% + juros diários (${extra} dias extras)`;
+            }
 
-                const total = item.valor + juros;
-                somaTotalGeral += total;
-                const totalFmt = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                const whatsLimpo = item.whatsapp.replace(/\D/g,'');
+               const total = item.valor + juros;
+               somaTotalGeral += total; 
+               const totalFmt = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+               const valorOriginalFmt = item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+               const whatsLimpo = item.whatsapp.replace(/\D/g,'');
 
-                const msgRelatorio = encodeURIComponent(`📊 *RESUMO DO EMPRÉSTIMO*\n\nOlá *${item.nome}*, segue os detalhes atualizados:\n\n🗓 *DATA DE INÍCIO:* ${dataC.toLocaleDateString('pt-BR')}\n💰 *VALOR ORIGINAL:* R$ ${item.valor.toLocaleString('pt-BR')}\n⏳ *TEMPO DECURSO:* ${diff} dias\n📈 *ENCARGOS:* ${detalheJuro}\n\n💵 *TOTAL PARA QUITAÇÃO:* ${totalFmt}\n\n---------------------------------------\n❓ *COMO VOCÊ DESEJA RECEBER O VALOR?*\n( ) Via PIX\n( ) Em Dinheiro\n---------------------------------------`);
-                const msgCobranca = encodeURIComponent(`⚠️ *AVISO DE COBRANÇA*\n\nOlá *${item.nome}*, o saldo hoje é *${totalFmt}*.\n\n📌 *DADOS PIX (PicPay):*\n\nSuelho1911@gmail.com\n\n_Solicitamos a gentileza de encaminhar o comprovante após a realização do pagamento.após o vencimento, o valor estará sujeito à incidência de juros diários!`);
+        // --- BOTÃO RELATÓRIO (Modelo solicitado com Chave Pix incluída abaixo) ---
+               const msgRelatorio = encodeURIComponent(`📊 *COBRANÇA DO EMPRÉSTIMO*\n\nOlá *${item.nome}*, segue os detalhes atualizados:\n\n🗓 *DATA DE INÍCIO:* ${dataC.toLocaleDateString('pt-BR')}\n💰 *VALOR ORIGINAL:*                  ${valorOriginalFmt}\n⏳ *TEMPO DECURSO:* ${diff} dias\n📈 *ENCARGOS:* ${detalheJuro}\n\n💵 *TOTAL PARA QUITAÇÃO:* ${totalFmt}\n\n---------------------------------------\n📌 *DADOS PARA PAGAMENTO (PIX):*\nSuelho1911@gmail.com \n---------------------------------------`);
 
-                tableBody.innerHTML += `
-                    <tr>
-                        <td>${dataC.toLocaleDateString('pt-BR')}</td>
-                        <td>${badge}</td>
-                        <td><strong>${item.nome}</strong><br><small style="color:var(--text-muted); font-size: 0.7rem;">${item.bairro || ''}</small></td>
-                        <td>R$ ${item.valor.toLocaleString('pt-BR')}</td>
-                        <td style="color:var(--warning); font-weight:700">R$ ${juros.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                        <td style="font-weight: 800;">${totalFmt}</td>
-                        <td>
-                            <div class="actions-div">
-                                <a href="https://wa.me/55${whatsLimpo}?text=${msgRelatorio}" target="_blank" class="btn-action btn-relatorio">Relatório</a>
-                                <a href="https://wa.me/55${whatsLimpo}?text=${msgCobranca}" target="_blank" class="btn-action btn-cobranca">Cobrar</a>
-                                <button onclick="deletar('${item.id}')" class="btn-action btn-delete">X</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-            document.getElementById('total-receber').innerText = somaTotalGeral.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
+// --- BOTÃO BOAS-VINDAS (Resumo dos clientes que vem do site) ---
+const msgBoasVindas = encodeURIComponent(`👋 *BOAS-NOTICIAS*\n\nOlá *${item.nome}*! Recebemos sua solicitação através do site.\n\n📝 *RESUMO DOS DADOS:*\n📞 WhatsApp: ${item.whatsapp}\n💵 Valor de interesse: ${valorOriginalFmt}\n📍 Local/Ref: ${item.bairro || 'Não informado'}\n\n -Após a aprovação do empréstimo, o cliente receberá o valor contratado de forma rápida e segura. O pagamento poderá ser realizado via transferência bancária *(PIX)* ou em *(DINHEIRO)*, conforme previamente acordado.
 
+No caso de PIX, o valor é creditado diretamente na conta informada pelo cliente, geralmente em poucos minutos. Para transferência bancária, o prazo pode variar de acordo com a instituição financeira. Já para recebimento em dinheiro, será combinado previamente o local e horário para a entrega.
+
+Assim que o valor for enviado ou disponibilizado, o cliente será notificado com o comprovante da transação, garantindo total transparência e segurança na operação.`);
+
+tableBody.innerHTML += `
+    <tr>
+        <td>${dataC.toLocaleDateString('pt-BR')}</td>
+        <td>${badge}</td>
+        <td><strong>${item.nome}</strong><br><small style="color:var(--text-muted); font-size: 0.7rem;">${item.bairro || ''}</small></td>
+        <td>${valorOriginalFmt}</td>
+        <td style="color:var(--warning); font-weight:700">R$ ${juros.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+        <td style="font-weight: 800;">${totalFmt}</td>
+        <td>
+            <div class="actions-div">
+                <a href="https://wa.me/55${whatsLimpo}?text=${msgRelatorio}" target="_blank" class="btn-action btn-relatorio">Relatório</a>
+                <a href="https://wa.me/55${whatsLimpo}?text=${msgBoasVindas}" target="_blank" class="btn-action btn-cobranca" style="background:#3b82f6;">Boas-vindas</a>
+                <button onclick="deletar('${item.id}')" class="btn-action btn-delete">X</button>
+            </div>
+        </td>
+    </tr>
+`;
+        });
+        document.getElementById('total-receber').innerText = somaTotalGeral.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
         async function deletar(id) {
             abrirModal('deleteModal');
             document.getElementById('confirmDeleteBtn').onclick = async () => {
@@ -360,4 +369,5 @@
     </script>
 </body>
 </html>
+
 
